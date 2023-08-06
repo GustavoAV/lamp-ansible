@@ -1,0 +1,66 @@
+---
+- name: "Upgrade all packages and remove trash"
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: true
+    autoclean: true
+    autoremove: true
+    cache_valid_time: "3600"
+  become: true
+
+- name: "Install basic packages"
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - "ca-certificates>=20230311ubuntu0.{{ ansible_facts['distribution_version'] }}.1"
+      - curl
+      - git
+      - gpg
+      - htop
+      - jq
+      - openssh-client
+      - python3-pip
+      - vim
+      - wget
+    state: present
+    update_cache: true
+    cache_valid_time: "3600"
+  become: true
+  register: common_apt_install
+  retries: 3
+  until: "common_apt_install is not failed"
+
+- name: "Install pip packages"
+  ansible.builtin.pip:
+    name:
+      - pip>=23.1.2
+      - setuptools>=68.0.0
+      - virtualenv>=20.24.0
+    state: present
+    extra_args: --user
+
+- name: "Add python modules directory to PATH"
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_facts['user_dir'] }}/.bashrc"
+    line: if [ -d "$HOME/.local/bin" ] ; then PATH="$HOME/.local/bin:$PATH"; fi
+    state: present
+
+- name: "Add vim default configs"
+  ansible.builtin.blockinfile:
+    path: /etc/vim/vimrc.local
+    block: |
+      set scrolloff=0
+    create: true
+    mode: "0644"
+    state: present
+  become: true
+
+- name: "Check if reboot is required"
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: common_reboot_required
+
+- name: "Reboot machine"
+  ansible.builtin.reboot:
+  become: true
+  when: common_reboot_required.stat.exists
