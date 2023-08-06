@@ -1,0 +1,12 @@
+---
+version: 0.1
+cli:
+  version: 1.13.0
+plugins:
+  sources:
+    - id: configs
+      ref: v0.0.2
+      uri: https://github.com/GustavoAV/trunk-configs
+    - id: trunk
+      ref: v1.1.0
+      uri: https://github.com/trunk-io/plugins
