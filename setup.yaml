@@ -1,0 +1,10 @@
+---
+- name: "Provision machines"
+  hosts: all
+  remote_user: vagrant
+  pre_tasks:
+    - name: "Check OS and set facts"
+      ansible.builtin.include_tasks:
+        file: os_check.yaml
+  roles:
+    - common
