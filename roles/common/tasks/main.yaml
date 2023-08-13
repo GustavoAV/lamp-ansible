@@ -39,11 +39,15 @@
     state: present
     extra_args: --user
 
-- name: "Add python modules directory to PATH"
+- name: "Add directories to PATH"
   ansible.builtin.lineinfile:
     path: "{{ ansible_facts['user_dir'] }}/.bashrc"
-    line: if [ -d "$HOME/.local/bin" ] ; then PATH="$HOME/.local/bin:$PATH"; fi
+    line: >
+      [ -d "{{ item }}" ] && export PATH="{{ item }}:$PATH"
     state: present
+  loop:
+    # Python modules
+    - $HOME/.local/bin
 
 - name: "Add vim default configs"
   ansible.builtin.blockinfile:
