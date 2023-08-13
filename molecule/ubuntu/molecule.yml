@@ -1,0 +1,28 @@
+---
+dependency:
+  name: galaxy
+  options:
+    ignore-certs: true
+    ignore-errors: true
+    role-file: requirements.yml
+    requirements-file: collections.yml
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+platforms:
+  - name: ubuntu20
+    box: ubuntu/focal64
+  - name: ubuntu22
+    box: ubuntu/jammy64
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      # Show tasks timing and results at end of play
+      callbacks_enabled: ansible.posix.profile_tasks
+  env:
+    # Allows placing roles in whatever path
+    ANSIBLE_ROLES_PATH: "../../roles"
+verifier:
+  name: ansible

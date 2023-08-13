@@ -1,0 +1,13 @@
+---
+- name: Converge
+  hosts: all
+  pre_tasks:
+    - name: "Check OS and set facts"
+      ansible.builtin.include_tasks:
+        file: ../../tasks/os_check.yaml
+  tasks:
+    - name: "Include role - {{ item }}"
+      ansible.builtin.include_role:
+        name: "{{ item }}"
+      loop:
+        - common

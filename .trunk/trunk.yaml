@@ -5,8 +5,8 @@ cli:
 plugins:
   sources:
     - id: configs
-      ref: v0.0.2
+      ref: v0.0.3
       uri: https://github.com/GustavoAV/trunk-configs
     - id: trunk
-      ref: v1.1.0
+      ref: v1.1.1
       uri: https://github.com/trunk-io/plugins
