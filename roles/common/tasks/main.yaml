@@ -20,6 +20,7 @@
       - jq
       - openssh-client
       - python3-pip
+      - python3-venv
       - vim
       - wget
     state: present
@@ -37,13 +38,11 @@
       - setuptools>=68.0.0
       - virtualenv>=20.24.0
     state: present
-    extra_args: --user
 
 - name: "Add directories to PATH"
   ansible.builtin.lineinfile:
     path: "{{ ansible_facts['user_dir'] }}/.bashrc"
-    line: >
-      [ -d "{{ item }}" ] && export PATH="{{ item }}:$PATH"
+    line: '[ -d "{{ item }}" ] && export PATH="{{ item }}:$PATH"'
     state: present
   loop:
     # Python modules
@@ -54,9 +53,10 @@
     path: /etc/vim/vimrc.local
     block: |
       set scrolloff=0
-    create: true
+    marker: '" {mark} ANSIBLE MANAGED BLOCK'
     mode: "0644"
-    state: present
+    backup: true
+    create: true
   become: true
 
 - name: "Check if reboot is required"
