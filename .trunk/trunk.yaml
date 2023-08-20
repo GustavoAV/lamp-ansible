@@ -1,11 +1,11 @@
 ---
 version: 0.1
 cli:
-  version: 1.13.0
+  version: 1.14.0
 plugins:
   sources:
     - id: configs
-      ref: v0.0.3
+      ref: v0.0.4
       uri: https://github.com/GustavoAV/trunk-configs
     - id: trunk
       ref: v1.1.1
