@@ -1,0 +1,86 @@
+---
+- name: "Install apache and php"
+  ansible.builtin.apt:
+    name:
+      - apache2
+      - libapache2-mod-php
+      - php
+      - php-mysql
+    state: present
+    update_cache: true
+
+- name: "Set index.php as default homepage"
+  ansible.builtin.lineinfile:
+    path: /etc/apache2/mods-enabled/dir.conf
+    search_string: "DirectoryIndex"
+    line: "        DirectoryIndex index.php index.html"
+    state: present
+  diff: true
+  notify: "Restart apache service"
+
+- name: "Create custom web site dir"
+  ansible.builtin.file:
+    path: "/var/www/{{ apache_website_name }}"
+    state: directory
+    mode: "0755"
+
+- name: "Create basic index html"
+  ansible.builtin.copy:
+    content: |
+      <html>
+          <head>
+              <title>Welcome to {{ apache_website_name }}!</title>
+          </head>
+          <body>
+              <h1>Success!  The {{ apache_website_name }} server block is working!</h1>
+          </body>
+      </html>
+    dest: "/var/www/{{ apache_website_name }}/index.html"
+    mode: "0644"
+    backup: true
+  notify: "Restart apache service"
+
+- name: "Add VirtualHost"
+  ansible.builtin.copy:
+    dest: /etc/apache2/sites-available/{{ apache_website_name }}.conf
+    content: |
+      <VirtualHost *:80>
+          ServerAdmin webmaster@localhost
+          ServerName {{ apache_website_name }}
+          ServerAlias www.{{ apache_website_name }}
+          DocumentRoot /var/www/{{ apache_website_name }}
+          ErrorLog ${APACHE_LOG_DIR}/error.log
+          CustomLog ${APACHE_LOG_DIR}/access.log combined
+      </VirtualHost>
+    mode: "0644"
+    backup: true
+  notify: "Restart apache service"
+
+- name: "Enable website"
+  ansible.builtin.command:
+    cmd: a2ensite {{ apache_website_name }}.conf
+    creates: /etc/apache2/sites-enabled/{{ apache_website_name }}.conf
+  notify: "Restart apache service"
+
+- name: "Disable default website"
+  ansible.builtin.command:
+    cmd: a2dissite 000-default.conf
+    removes: /etc/apache2/sites-enabled/000-default.conf
+  notify: "Restart apache service"
+
+- name: "Validate configs"
+  ansible.builtin.command:
+    cmd: apache2ctl configtest
+  register: apache_validate_config
+  changed_when: apache_validate_config.rc != 0
+
+- name: "Start and enable apache service"
+  ansible.builtin.systemd:
+    name: apache2
+    state: started
+    enabled: true
+    daemon_reload: true
+
+# - name: "Create php webpage"
+#   ansible.builtin.copy:
+#     dest: /var/www/{{ apache_website_name }}.index.php
