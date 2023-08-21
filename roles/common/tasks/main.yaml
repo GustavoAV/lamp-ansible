@@ -1,13 +1,4 @@
 ---
-- name: "Upgrade all packages and remove trash"
-  ansible.builtin.apt:
-    update_cache: true
-    upgrade: true
-    autoclean: true
-    autoremove: true
-    cache_valid_time: "3600"
-  become: true
-
 - name: "Install basic packages"
   ansible.builtin.apt:
     name:
@@ -26,27 +17,6 @@
     state: present
     update_cache: true
     cache_valid_time: "3600"
-  become: true
-  register: common_apt_install
-  retries: 3
-  until: "common_apt_install is not failed"
-
-- name: "Install pip packages"
-  ansible.builtin.pip:
-    name:
-      - pip>=23.1.2
-      - setuptools>=68.0.0
-      - virtualenv>=20.24.0
-    state: present
-
-- name: "Add directories to PATH"
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_facts['user_dir'] }}/.bashrc"
-    line: '[ -d "{{ item }}" ] && export PATH="{{ item }}:$PATH"'
-    state: present
-  loop:
-    # Python modules
-    - $HOME/.local/bin
 
 - name: "Add vim default configs"
   ansible.builtin.blockinfile:
@@ -57,7 +27,6 @@
     mode: "0644"
     backup: true
     create: true
-  become: true
 
 - name: "Check if reboot is required"
   ansible.builtin.stat:
@@ -66,5 +35,4 @@
 
 - name: "Reboot machine"
   ansible.builtin.reboot:
-  become: true
   when: common_reboot_required.stat.exists
