@@ -15,7 +15,6 @@
     search_string: "DirectoryIndex"
     line: "        DirectoryIndex index.php index.html"
     state: present
-  diff: true
   notify: "Restart apache service"
 
 - name: "Create custom web site dir"
@@ -24,7 +23,7 @@
     state: directory
     mode: "0755"
 
-- name: "Create basic index html"
+- name: "Create basic html index"
   ansible.builtin.copy:
     content: |
       <html>
@@ -36,6 +35,17 @@
           </body>
       </html>
     dest: "/var/www/{{ apache_website_name }}/index.html"
+    mode: "0644"
+    backup: true
+  notify: "Restart apache service"
+
+- name: "Create basic php index"
+  ansible.builtin.copy:
+    content: |
+      <?php
+      phpinfo ();
+      ?>
+    dest: "/var/www/{{ apache_website_name }}/index.php"
     mode: "0644"
     backup: true
   notify: "Restart apache service"
@@ -79,8 +89,3 @@
     name: apache2
     state: started
     enabled: true
-    daemon_reload: true
-
-# - name: "Create php webpage"
-#   ansible.builtin.copy:
-#     dest: /var/www/{{ apache_website_name }}.index.php
