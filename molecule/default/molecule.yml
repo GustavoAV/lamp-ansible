@@ -8,8 +8,12 @@ driver:
 platforms:
   - name: ub20
     box: ubuntu/focal64
+    instance_raw_config_args:
+      - "vm.network 'forwarded_port', guest: 80, host: 8020"
   - name: ub22
     box: ubuntu/jammy64
+    instance_raw_config_args:
+      - "vm.network 'forwarded_port', guest: 80, host: 8022"
 provisioner:
   name: ansible
   config_options:
