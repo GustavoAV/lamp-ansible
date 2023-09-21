@@ -1,18 +1,18 @@
 ---
-- name: "Install mysql"
+- name: Install mysql
   ansible.builtin.apt:
     name:
-      - mysql-client-8.0
+      - mysql-server-8.0
       - python3-pip
     state: present
     update_cache: true
 
-- name: "Install PyMySQL"
+- name: Install PyMySQL
   ansible.builtin.pip:
     name: PyMySQL
     state: present
 
-- name: "Copy mysql config"
+- name: Copy mysql config
   ansible.builtin.copy:
     content: |
       [mysqld]
@@ -29,25 +29,25 @@
     dest: /etc/mysql/my.cnf
     mode: "0644"
     backup: true
-  notify: "Restart mysql"
+  notify: Restart mysql
 
-- name: "Start and enable mysql"
+- name: Start and enable mysql
   ansible.builtin.systemd:
     name: mysql
     state: started
     enabled: true
 
-- name: "Run notified handlers"
+- name: Run notified handlers
   ansible.builtin.meta: flush_handlers
 
 # Exception message: 1698 Access denied for user root@localhost
 
-- name: "Create database"
+- name: Create database
   community.mysql.mysql_db:
     name: example
     state: present
 
-- name: "Create database user"
+- name: Create database user
   community.mysql.mysql_user:
     name: user
     password: pass

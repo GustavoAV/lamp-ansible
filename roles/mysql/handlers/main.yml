@@ -1,5 +1,5 @@
 ---
-- name: "Restart mysql"
+- name: Restart mysql
   ansible.builtin.systemd:
     name: mysql
     state: restarted
