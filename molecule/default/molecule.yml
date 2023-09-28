@@ -24,6 +24,10 @@ provisioner:
   #     callbacks_enabled: ansible.posix.profile_tasks
   env:
     # Allows placing roles in whatever path
-    ANSIBLE_ROLES_PATH: "../../roles"
+    ANSIBLE_ROLES_PATH: ../../roles
+  inventory:
+    group_vars:
+      all:
+        mysql_root_password: supersecret
 verifier:
   name: ansible

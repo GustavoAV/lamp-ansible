@@ -1,8 +1,11 @@
 ---
+# Based on: https://linuxhint.com/install-mysql-on-ubuntu-22-04/
+
 - name: Install mysql
   ansible.builtin.apt:
     name:
       - mysql-server-8.0
+      - mysql-client-8.0
       - python3-pip
     state: present
     update_cache: true
@@ -12,35 +15,32 @@
     name: PyMySQL
     state: present
 
-- name: Copy mysql config
-  ansible.builtin.copy:
-    content: |
-      [mysqld]
-      datadir=/var/lib/mysql
-      socket=/var/lib/mysql/mysql.sock
-      user=mysql
-      # Disabling symbolic-links is recommended to prevent assorted security risks
-      symbolic-links=0
-      port=3306
-
-      [mysqld_safe]
-      log-error=/var/log/mysqld.log
-      pid-file=/var/run/mysqld/mysqld.pid
-    dest: /etc/mysql/my.cnf
-    mode: "0644"
-    backup: true
-  notify: Restart mysql
-
 - name: Start and enable mysql
   ansible.builtin.systemd:
     name: mysql
     state: started
     enabled: true
 
-- name: Run notified handlers
-  ansible.builtin.meta: flush_handlers
+- name: Set root password
+  ansible.builtin.shell:
+    cmd: >
+      mysql --execute="
+        ALTER USER 'root'@'localhost'
+          IDENTIFIED WITH mysql_native_password
+          BY '{{ mysql_root_password }}';
+        FLUSH PRIVILEGES;
+      " && touch /etc/mysql/.root_password_configured
+    creates: /etc/mysql/.root_password_configured
+  notify: Restart mysql
 
-# Exception message: 1698 Access denied for user root@localhost
+- name: Copy .my.cnf file with root password credentials
+  ansible.builtin.copy:
+    content: |
+      [client]
+      user=root
+      password={{ mysql_root_password }}
+    dest: /root/.my.cnf
+    mode: "0600"
 
 - name: Create database
   community.mysql.mysql_db:
@@ -54,3 +54,6 @@
     priv: "*.*:ALL"
     host: '%'
     state: present
+
+- name: Run notified handlers
+  ansible.builtin.meta: flush_handlers
