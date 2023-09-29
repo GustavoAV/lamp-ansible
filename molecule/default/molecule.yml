@@ -28,6 +28,11 @@ provisioner:
   inventory:
     group_vars:
       all:
+        apache_website_name: example
+        mysql_db_host: localhost
+        mysql_db_user: user
+        mysql_db_pass: pass
+        mysql_db_name: app_db
         mysql_root_password: supersecret
 verifier:
   name: ansible

@@ -44,13 +44,13 @@
 
 - name: Create database
   community.mysql.mysql_db:
-    name: example
+    name: "{{ mysql_db_name }}"
     state: present
 
 - name: Create database user
   community.mysql.mysql_user:
-    name: user
-    password: pass
+    name: "{{ mysql_db_user }}"
+    password: "{{ mysql_db_pass }}"
     priv: "*.*:ALL"
     host: '%'
     state: present
