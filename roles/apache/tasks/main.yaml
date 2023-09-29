@@ -1,5 +1,5 @@
 ---
-- name: "Install apache and php"
+- name: Install apache and php
   ansible.builtin.apt:
     name:
       - apache2
@@ -9,21 +9,21 @@
     state: present
     update_cache: true
 
-- name: "Set index.php as default homepage"
+- name: Set index.php as default homepage
   ansible.builtin.lineinfile:
     path: /etc/apache2/mods-enabled/dir.conf
     search_string: "DirectoryIndex"
     line: "        DirectoryIndex index.php index.html"
     state: present
-  notify: "Restart apache service"
+  notify: Restart apache service
 
-- name: "Create custom web site dir"
+- name: Create custom web site dir
   ansible.builtin.file:
     path: "/var/www/{{ apache_website_name }}"
     state: directory
     mode: "0755"
 
-- name: "Create basic html index"
+- name: Create basic html index
   ansible.builtin.copy:
     content: |
       <html>
@@ -37,9 +37,9 @@
     dest: "/var/www/{{ apache_website_name }}/index.html"
     mode: "0644"
     backup: true
-  notify: "Restart apache service"
+  notify: Restart apache service
 
-- name: "Create basic php index"
+- name: Create basic php index
   ansible.builtin.copy:
     content: |
       <!DOCTYPE html>
@@ -75,9 +75,9 @@
     dest: "/var/www/{{ apache_website_name }}/index.php"
     mode: "0644"
     backup: true
-  notify: "Restart apache service"
+  notify: Restart apache service
 
-- name: "Add VirtualHost"
+- name: Add VirtualHost
   ansible.builtin.copy:
     dest: /etc/apache2/sites-available/{{ apache_website_name }}.conf
     content: |
@@ -91,27 +91,27 @@
       </VirtualHost>
     mode: "0644"
     backup: true
-  notify: "Restart apache service"
+  notify: Restart apache service
 
-- name: "Enable website"
+- name: Enable website
   ansible.builtin.command:
     cmd: a2ensite {{ apache_website_name }}.conf
     creates: /etc/apache2/sites-enabled/{{ apache_website_name }}.conf
-  notify: "Restart apache service"
+  notify: Restart apache service
 
-- name: "Disable default website"
+- name: Disable default website
   ansible.builtin.command:
     cmd: a2dissite 000-default.conf
     removes: /etc/apache2/sites-enabled/000-default.conf
-  notify: "Restart apache service"
+  notify: Restart apache service
 
-- name: "Validate configs"
+- name: Validate configs
   ansible.builtin.command:
     cmd: apache2ctl configtest
   register: apache_validate_config
   changed_when: apache_validate_config.rc != 0
 
-- name: "Start and enable apache service"
+- name: Start and enable apache service
   ansible.builtin.systemd:
     name: apache2
     state: started
