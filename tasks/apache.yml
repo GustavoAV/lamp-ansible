@@ -12,10 +12,10 @@
 - name: Set index.php as default homepage
   ansible.builtin.lineinfile:
     path: /etc/apache2/mods-enabled/dir.conf
-    search_string: "DirectoryIndex"
+    search_string: DirectoryIndex
     line: "        DirectoryIndex index.php index.html"
     state: present
-  notify: Restart apache service
+  notify: Restart apache
 
 - name: Create custom web site dir
   ansible.builtin.file:
@@ -37,7 +37,7 @@
     dest: "/var/www/{{ apache_website_name }}/index.html"
     mode: "0644"
     backup: true
-  notify: Restart apache service
+  notify: Restart apache
 
 - name: Create basic php index
   ansible.builtin.copy:
@@ -75,7 +75,7 @@
     dest: "/var/www/{{ apache_website_name }}/index.php"
     mode: "0644"
     backup: true
-  notify: Restart apache service
+  notify: Restart apache
 
 - name: Add VirtualHost
   ansible.builtin.copy:
@@ -91,19 +91,19 @@
       </VirtualHost>
     mode: "0644"
     backup: true
-  notify: Restart apache service
+  notify: Restart apache
 
 - name: Enable website
   ansible.builtin.command:
     cmd: a2ensite {{ apache_website_name }}.conf
     creates: /etc/apache2/sites-enabled/{{ apache_website_name }}.conf
-  notify: Restart apache service
+  notify: Restart apache
 
 - name: Disable default website
   ansible.builtin.command:
     cmd: a2dissite 000-default.conf
     removes: /etc/apache2/sites-enabled/000-default.conf
-  notify: Restart apache service
+  notify: Restart apache
 
 - name: Validate configs
   ansible.builtin.command:

@@ -1,0 +1,27 @@
+---
+- name: Install basic packages
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - "ca-certificates>=20230311ubuntu0.{{ ansible_facts['distribution_version'] }}.1"
+      - curl
+      - git
+      - gpg
+      - htop
+      - jq
+      - openssh-client
+      - python3-pip
+      - python3-venv
+      - vim
+      - wget
+    state: present
+    update_cache: true
+    cache_valid_time: "3600"
+
+- name: Setup mysql
+  ansible.builtin.include_tasks:
+    file: mysql.yml
+
+- name: Setup apache
+  ansible.builtin.include_tasks:
+    file: apache.yml

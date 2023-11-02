@@ -18,13 +18,10 @@ platforms:
       - "vm.network 'forwarded_port', guest: 80, host: 8022"
 provisioner:
   name: ansible
-  # config_options:
-  #   defaults:
-  #     # Show tasks timing and results at end of play
-  #     callbacks_enabled: ansible.posix.profile_tasks
-  env:
-    # Allows placing roles in whatever path
-    ANSIBLE_ROLES_PATH: ../../roles
+  config_options:
+    defaults:
+      # Show tasks timing and results at end of play
+      callbacks_enabled: ansible.posix.profile_tasks
   inventory:
     group_vars:
       all:
@@ -32,7 +29,7 @@ provisioner:
         mysql_db_host: localhost
         mysql_db_user: user
         mysql_db_pass: pass
-        mysql_db_name: app_db
+        mysql_db_name: app
         mysql_root_password: supersecret
 verifier:
   name: ansible

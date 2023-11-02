@@ -3,7 +3,7 @@
   hosts: all
   diff: true
   become: true
-  roles:
-    - common
-    - mysql
-    - apache
+  tasks:
+    - name: Setup LAMP server
+      ansible.builtin.include_role:
+        name: lamp-ansible
