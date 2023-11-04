@@ -23,72 +23,26 @@
     state: directory
     mode: "0755"
 
-- name: Create basic html index
-  ansible.builtin.copy:
-    content: |
-      <html>
-          <head>
-              <title>Welcome to {{ apache_website_name }}!</title>
-          </head>
-          <body>
-              <h1>Success!  The {{ apache_website_name }} server block is working!</h1>
-          </body>
-      </html>
+- name: Generate basic html index
+  ansible.builtin.template:
+    src: index.html
     dest: "/var/www/{{ apache_website_name }}/index.html"
     mode: "0644"
     backup: true
   notify: Restart apache
 
-- name: Create basic php index
-  ansible.builtin.copy:
-    content: |
-      <!DOCTYPE html>
-      <html>
-      <head>
-          <title>Conecting PHP with MySQL</title>
-      </head>
-      <body>
-
-      <?php
-      // Database credentials
-      $servername = "{{ mysql_db_host }}";
-      $username = "{{ mysql_db_user }}";
-      $password = "{{ mysql_db_pass }}";
-      $database = "{{ mysql_db_name }}";
-
-      // Create connection
-      $conn = new mysqli($servername, $username, $password, $database);
-
-      // Verify connection
-      if ($conn->connect_error) {
-          die("Falha na conexão: " . $conn->connect_error);
-      }
-
-      echo "Connection with MySQL sucessful!";
-
-      // Close connection
-      $conn->close();
-      ?>
-
-      </body>
-      </html>
+- name: Generate basic php index
+  ansible.builtin.template:
+    src: index.php
     dest: "/var/www/{{ apache_website_name }}/index.php"
     mode: "0644"
     backup: true
   notify: Restart apache
 
-- name: Add VirtualHost
-  ansible.builtin.copy:
+- name: Generate VirtualHost config
+  ansible.builtin.template:
+    src: vhost.conf
     dest: /etc/apache2/sites-available/{{ apache_website_name }}.conf
-    content: |
-      <VirtualHost *:80>
-          ServerAdmin webmaster@localhost
-          ServerName {{ apache_website_name }}
-          ServerAlias www.{{ apache_website_name }}
-          DocumentRoot /var/www/{{ apache_website_name }}
-          ErrorLog ${APACHE_LOG_DIR}/error.log
-          CustomLog ${APACHE_LOG_DIR}/access.log combined
-      </VirtualHost>
     mode: "0644"
     backup: true
   notify: Restart apache
