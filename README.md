@@ -2,6 +2,8 @@
 
 Ansible project to setup a standard LAMP (Linux, Apache, MySQL, PHP) stack.
 
+> This project is for studying and is **not** intended for production usage.
+
 ## Development
 
 We use the tools below for this project development. Install and configure them following the documentations steps.
